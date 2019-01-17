@@ -1,0 +1,13 @@
+{
+  "groups": [{
+    "name": "app",
+    "type": "com.ayc.configs.AppConfigs",
+    "sourceType": "com.ayc.configs.AppConfigs"
+  }],
+  "properties": [{
+    "name": "app.bizdb-index",
+    "type": "java.lang.Integer",
+    "sourceType": "com.ayc.configs.AppConfigs"
+  }],
+  "hints": []
+}

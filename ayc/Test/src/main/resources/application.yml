@@ -1,0 +1,34 @@
+server:  
+  port: 8080
+  tomcat.uri-encoding: UTF-8
+
+#spring:
+  #redis
+#  redis:
+#    host: 192.168.0.202
+#    port: 6379
+#    pool:
+#      max-idle: 100
+#      min-idle: 1
+#      max-active: 100
+#      max-wait: -1
+#  http:
+#    encoding:
+#      force: true
+#      charset: UTF-8
+#      enabled: true
+#    multipart:
+#      maxFileSize: 100Mb
+#      maxRequestSize: 1000Mb
+      
+#分页  
+pagehelper: 
+  helperDialect: mysql
+  reasonable: false
+  supportMethodsArguments: true
+  params: count=countSql
+ #分库index 每次添加一个数据源+10
+detector:
+  bizdbIndex: 5
+app:
+  bizdbIndex: 5

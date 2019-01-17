@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd 
+        http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+		http://www.springframework.org/schema/aop 
+        http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+	<!-- 业务数据库 -->
+	<bean id="bgBizDataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		init-method="init" destroy-method="close">
+		<property name="url" value="${jdbc.user1.url}" />
+		<property name="username" value="${jdbc.user1.username}" />
+		<property name="password" value="${jdbc.user1.password}" />
+
+		<property name="proxyFilters">
+			<list>
+				<bean id="log-filter" class="com.alibaba.druid.filter.logging.Slf4jLogFilter">
+					<property name="resultSetLogEnabled" value="${log.enable}" />
+				</bean> 
+				<bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+					<property name="slowSqlMillis" value="${slow.sql.millis}" />
+					<property name="logSlowSql" value="${slow.sql.enable}" />
+					<property name="mergeSql" value="${slow.sql.merge}" />
+				</bean>
+				<bean id="wall-filter" class="com.alibaba.druid.wall.WallFilter">
+					<property name="dbType" value="${wall.db.type}" />
+				</bean>
+			</list>
+		</property>
+
+		<property name="maxActive" value="${jdbc.max_active}" />
+		<!-- <property name="initialSize" value="${jdbc.initial_size}" /> -->
+		<property name="maxWait" value="${jdbc.max_wait}" />
+		<property name="minIdle" value="${jdbc.min_idle}" />
+
+		<property name="timeBetweenEvictionRunsMillis" value="3000" />
+		<property name="minEvictableIdleTimeMillis" value="300000" />
+
+		<property name="validationQuery" value="SELECT 'x'" />
+		<property name="testWhileIdle" value="true" />
+		<property name="testOnBorrow" value="false" />
+		<property name="testOnReturn" value="false" />
+
+		<property name="removeAbandoned" value="true" />
+		<property name="removeAbandonedTimeout" value="1800" />
+		<property name="logAbandoned" value="true" />
+	</bean>
+
+
+	<bean id="dataSourceKeyHashRule1" class="com.ayc.framework.datasource.impl.rules.DataSourceKeyHashRule">
+		<property name="field" value="rCashId"/>
+	    <property name="from" value="0"/>
+		<property name="to" value="9"/>
+		<property name="dataSourceKey" value="bgBizDataSource"/>
+	</bean>
+
+
+	<bean id="defaultDataSourceKeyDeterminer" class="com.ayc.framework.datasource.impl.DefaultDataSourceKeyDeterminer">
+		<property name="defaultDataSourceKey" value="bgBizDataSource"/>
+		<property name="rules">
+			<list>
+				<ref bean="dataSourceKeyHashRule1"/>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="dataSource" class="com.ayc.framework.datasource.DynamicDataSource">
+        <property name="targetDataSources">  
+              <map key-type="java.lang.String">  
+                 <entry key="bgBizDataSource" value-ref="bgBizDataSource"/>
+              </map>  
+        </property>  
+        <property name="defaultTargetDataSource" ref="bgBizDataSource"/>  
+    </bean>
+	
+	<aop:aspectj-autoproxy/>
+   	<bean id="multipleDataSourceAspect" class="com.ayc.framework.datasource.DataSourceAspect" />
+   	<aop:config>
+        <aop:aspect id="c" ref="multipleDataSourceAspect">
+			<aop:pointcut id="tx" expression="execution(* com.ayc.service.*.service.impl.*.*(..))"/>
+            <aop:before pointcut-ref="tx" method="before"/>
+            <aop:after pointcut-ref="tx" method="after"/>
+        </aop:aspect>
+    </aop:config>
+    
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="mapperLocations">
+		    <list>
+		        <value>classpath*:/mybatis/mapper/*Mapper.xml</value>
+		    </list>
+		</property>
+	</bean>
+	
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.ayc.service.**.dao.mapper" />
+		<property name="markerInterface" value="com.ayc.framework.dao.IBaseMapper" />
+	</bean>
+
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+		<constructor-arg index="1" value="REUSE" />
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
+
+</beans>

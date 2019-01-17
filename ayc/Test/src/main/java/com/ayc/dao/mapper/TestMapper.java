@@ -1,6 +1,7 @@
 
 package com.ayc.dao.mapper;
 
+import com.ayc.entity.TestEntity;
 import com.ayc.framework.dao.IBaseMapper;
 
 /**
@@ -9,5 +10,5 @@ import com.ayc.framework.dao.IBaseMapper;
  * Description:
  */
 public interface TestMapper extends IBaseMapper{
-
+    TestEntity queyTest();
 }

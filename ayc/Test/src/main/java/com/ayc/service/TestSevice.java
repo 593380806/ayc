@@ -10,5 +10,5 @@ import com.ayc.entity.TestEntity;
  */
 
 public interface TestSevice {
-    TestEntity reTest();
+    TestEntity reTest(Integer rCashId);
 }

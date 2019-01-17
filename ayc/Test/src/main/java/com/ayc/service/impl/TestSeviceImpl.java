@@ -1,8 +1,11 @@
 
 package com.ayc.service.impl;
 
+import com.ayc.dao.mapper.TestMapper;
 import com.ayc.entity.TestEntity;
+import com.ayc.framework.datasource.annotation.DataSource;
 import com.ayc.service.TestSevice;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -12,9 +15,11 @@ import org.springframework.stereotype.Service;
  */
 @Service("testSevice")
 public class TestSeviceImpl implements TestSevice{
-
+    @Autowired
+    private TestMapper testMapper;
     @Override
-    public TestEntity reTest() {
-        return null;
+    public TestEntity reTest(@DataSource(field = "rCashId") Integer rCashId) {
+        TestEntity testEntity = testMapper.queyTest();
+        return testEntity;
     }
 }

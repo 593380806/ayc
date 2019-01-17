@@ -37,7 +37,6 @@
 		</property>
 
 		<property name="maxActive" value="${jdbc.max_active}" />
-		<!-- <property name="initialSize" value="${jdbc.initial_size}" /> -->
 		<property name="maxWait" value="${jdbc.max_wait}" />
 		<property name="minIdle" value="${jdbc.min_idle}" />
 
@@ -101,7 +100,7 @@
 	</bean>
 	
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.ayc.service.**.dao.mapper" />
+		<property name="basePackage" value="com.ayc.**.dao.mapper" />
 		<property name="markerInterface" value="com.ayc.framework.dao.IBaseMapper" />
 	</bean>
 
